@@ -144,6 +144,7 @@ class IndexController
         ";
     }
 
+    // TODO убрать комменты
 //    public function actionAdd()
 //    {
 //        $response = json_decode((file_get_contents("accessToken.txt")), true);
@@ -154,13 +155,14 @@ class IndexController
     public function actionAddTextField()
     {
         $model = new Model($this->token, null);
-        $model->addTextField((int) $_POST["inputId"], $_POST["textField"], $_POST["nameFieldValue"],$_POST["textFieldValue"]);
+        $model->addTextField((int) $_POST["inputId"], $_POST["textField"], $_POST["nameFieldValue"],$_POST["textFieldValue"]);//TODO проверка на существование
     }
+    // TODO отступы
     public function actionAddNote()
     {
         $model = new Model($this->token, null);
         if($_POST["noteSelect"] === "note"){
-                $model->addNote((int) $_POST["inputNoteId"], $_POST["addNote"], $_POST["addNoteValue"]);
+                $model->addNote((int) $_POST["inputNoteId"], $_POST["addNote"], $_POST["addNoteValue"]); // TODO лишние отступ
         }
         if($_POST["noteSelect"] === "call"){
             $model->addCall((int) $_POST["inputNoteId"], $_POST["addNote"], $_POST["addNoteValue"]);

@@ -13,7 +13,7 @@ class Model
 
     public $token;
     public $count;
-    public $subdomain = "testcustomersamocrmru";
+    public $subdomain = "testwathird";
 
     public function __construct($token, $count = null)
     {
@@ -31,7 +31,7 @@ class Model
             $out = self::makeRequestPOST("api/v4/companies", $array);
             $companyId = json_decode($out, true)["_embedded"]["companies"][0]['id'];
             array_push($id, $companyId);
-            sleep(1);
+            sleep(5); // TODO дублирование
         }
 
         $this->companyIds = $id;
@@ -95,6 +95,7 @@ class Model
 
     public function createRelations($companyIds, $contactsIds, $dealsIds, $customersIds)
     {
+//        $this->creasdfteRelations();
         for ($i = 0; $i < count($dealsIds); $i++) {
             self::makeRequestPOST("api/v4/leads/$dealsIds[$i]/link", [
                 [
@@ -104,6 +105,7 @@ class Model
             ]);
             sleep(1);
         }
+        // TODO привязать контакты к сделкам
         for ($j = 0; $j < count($customersIds); $j++) {
             self::makeRequestPOST("api/v4/customers/$customersIds[$j]/link", [
                 [
@@ -114,6 +116,20 @@ class Model
             sleep(1);
         }
     }
+//
+//    protected function creasdfteRelations($companyIds, $contactsIds, $dealsIds, $customersIds)
+//    {
+//        // TODO сделать цикл универсальным
+//        for ($i = 0; $i < count($dealsIds); $i++) {
+//            self::makeRequestPOST("api/v4/leads/$dealsIds[$i]/link", [
+//                [
+//                    to_entity_id => $companyIds[$i],
+//                    to_entity_type => "companies",
+//                ]
+//            ]);
+//            sleep(1);
+//        }
+//    }
 
     public function addMultiselect()
     {
@@ -174,6 +190,9 @@ class Model
         //Формируем список id значений мультисписка из json строки
         $ids = [];
         $addMultiselectOutput = json_decode($addedFieldsIds, true);
+        if (!isset($addMultiselectOutput['_embedded']['custom_fields'][0]['enums'])) { // TODO проверки
+//            throw new \Exception('asdfdas');
+        }
         foreach ($addMultiselectOutput['_embedded']['custom_fields'][0]['enums'] as $item) {
             array_push($ids, $item['id']);
         }
@@ -331,7 +350,7 @@ class Model
         try {
             /** Если код ответа не успешный - возвращаем сообщение об ошибке  */
             if ($code < 200 || $code > 204) {
-                throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
+//                throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
         } catch (\Exception $e) {
             die('Ошибка: ' . $e->getMessage() . PHP_EOL . 'Код ошибки: ' . $e->getCode());
@@ -339,7 +358,10 @@ class Model
         return $out;
     }
 
-    private function makeRequestPUTCH($api, $array)
+    protected const PATCH = 'PATCH';
+
+    // TODO реквесты в одтельный класс
+    private function makeRequest($api, $array, $method)
     {
         $link = 'https://' . $this->subdomain . '.amocrm.ru/' . $api;
         $headers = array(
@@ -347,13 +369,20 @@ class Model
             'Authorization: Bearer ' . $this->token,
             "Content-Type: application/json",
         );
+
+        // https://www.php.net/manual/ru/function.curl-setopt.php
         $curl = curl_init($link);
         curl_setopt($curl, CURLOPT_URL, $link);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        if ($method === self::PATCH) {
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        }
+
         curl_setopt($curl, CURLOPT_PATCH, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($array));
+        if ($method === 'POST' || $method === self::PATCH) {
+            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($array));
+        }
         $out = curl_exec($curl);
         $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);

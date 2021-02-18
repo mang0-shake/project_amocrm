@@ -1,18 +1,19 @@
 <?php
-
+declare(strict_types=1);
 
 namespace MyApp;
 
 class App
 {
-    public function start($token)
+    public function start(string $token): void
     {
         [$uri] = explode('?', $_SERVER['REQUEST_URI']);
-        [$controllerName, $actionName, $param] = explode('/', trim($uri, '/'));
+        [$controllerName, $actionName, $param] = explode('/', trim($uri, '/')); // TODO убрать $param
 
         if (empty($controllerName)) {
             $controllerName = 'index';
         }
+
         if (empty($actionName)) {
             $actionName = 'index';
         }
@@ -30,14 +31,14 @@ class App
     public function initToken()
     {
         if (!file_get_contents("accessToken.txt")) {
-            $subdomain = 'testcustomersamocrmru';
+            $subdomain = 'testwathird';
             $link = 'https://' . $subdomain . '.amocrm.ru/oauth2/access_token'; //Формируем URL для запроса
 
             $data = [
-                'client_id' => 'a434234b-fc07-4c28-8807-dd1547eb8c99',
-                'client_secret' => 'uH8LDhYzH2sZOCFvxQxYCh2ZPoqeEhjSh3YpnDDnjXZIR5cEK5S3u74aT5jHDrIQ',
+                'client_id' => 'ea2a467f-22ee-41b8-9849-db112e5fca5d',
+                'client_secret' => 'RIVV2D7OLOojEsxvFwbF1eTynYNATmCY1rEKqwJ8frDBSFaiuXvuzj9M5DRvlSPl',
                 'grant_type' => 'authorization_code',
-                'code' => 'def5020060ed9ee44b03879ea17a0f69a7178088200c8249e87546ee0797593d5936266304dbfe0342c3d785cbcd2be4bd50074688bf9c1999180f73627af4da2b9b13d8e18f7699123eaed3a02f9bcf5a3bbe52d3e909148accdcc616c4ba283a4139fab9b90a97d51c56059a4ec687792805a21020ed68a74a51b1452d654e1105a5c3687ebd3b1d9bade4dd60ed729e69e017a2a778844a35c2de6db82874b606d225d6ae21668b6f513044bfa86181c5b659027ed07a1b753891567b5cf9203988bb92d4ac2fb15c2002043a56d2cd6b6a24530b1fb793b42c3691fdd719152bc4ec3c50ee5af8128378a4b8c815ef7ee07910c317fdbda10a48411bd8ca8d443f9131fa4f12bbd9fe74512cf01369991c017028daf95f1a1c50b0d8e0b2344f100d76efc9c7686c22aed2e7a05fdb80a67829ae8b82b85b07d1f7d585ef3af8ca12261b51de0a9aca9564286abbd75cc5a3c21e8e936ec21b516beb545c9ec2bee3b478f2facc70e742b0d2b623ef471dcc8c443841abc9167aa9716f771c3bcf135582107e27a45eac083183d7e2a1ed0e134a65ba079a750fdb9661918db9d255e26b754de713da1eeb6329e9346fc6346e45690fa530323d',
+                'code' => 'def5020050676bcacba599ccf36a2e586a4c20debebd95802aaf80b3cb3dd059576c446fd2860e85d40828d0a80f35b7f2f23a70508f1acea3920085df28d1b52bc3730593cabde6d2dbf16dca6755f7487154319db7642e515f0ff5444d9caf5600d0967ef933c9d8d53b5271d1e6d511a360a8447c76660372d89bca636a7a6af8bbeaf16447fc4a2a7016a4fa6a3889415c9dbb3feba64afe1284770e15aa2061a63986d167877062ed1d2b791db508f25c5e56bd29684c2392a3a91853ffe321a4c9d2da543afb8564d74351d12a42cbe27384df06081105e72f0bcf09b7bd0e9cf1dcc4142aff2f9a520471aff6b6ad1b3cc1dfcabc58bc1181d2f950256108952f82f18aca964e3eaa483fa826cf15bbd17bcdbc32e71a2dc73732bc163287313f56d37197dc32c65ceb60daaeba93c45cdc303c445f3a294e8c142cf70fe8e9035e029d017432025377c476ab2ad2bd253f570c001e15c49832e3a2cb2d50801e767eb9b9c2585a972debfb97fee26671a18d219f7d0ff6e481e14dce7e02e05629573fea2c012cdbeb2f6587ec3311e4503dae4a12d44a799a62c8e1e68c7e4262577c918702dc0fec7aff089dd6e6e05e68807e141828f5',
                 'redirect_uri' => 'https://google.com',
             ];
             $curl = curl_init();
@@ -73,7 +74,7 @@ class App
                 die('Ошибка: ' . $e->getMessage() . PHP_EOL . 'Код ошибки: ' . $e->getCode());
             }
 
-            $fp = fopen("accessToken.txt", "w");
+            $fp = fopen("accessToken.txt", "w"); // file_put_contents
             fwrite($fp, $out);
             fclose($fp);
         }
